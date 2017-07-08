@@ -5,7 +5,7 @@ var unzip;
 const child_process = require('child_process');
 var Old_Name;
 
-if(!fs.exists('Magic')){
+if(fs.existsSync('Magic')){
     Old_Name = 'Magic_old' + Date.now('year, month, day, hour, minute, second, millisecond').toString().split(' ').join('_');
     fs.rename('Magic',Old_Name,(err)=>{
         if( !err) {
@@ -20,6 +20,7 @@ if(!fs.exists('Magic')){
         //download()    
     })
 }else{
+    console.log('Started...')
     InstallerNpmPackages(()=>{
         download();
     })
@@ -96,6 +97,7 @@ function CopyOldOverrideFiles(){
         }
     }else{
             console.log('No Old Override Files exists');
+            Clean();
     }
 }
 
