@@ -63,10 +63,22 @@ function UnzipIt(){
          fs.rename('magic-master', 'Magic', function (err) {
             if (err) throw err;
             console.log('Renamed to Magic');
+            unzipExternalTools();
             MagicNpmPackages();
             
         });
     }) 
+}
+
+function unzipExternalTools(){
+    console.log('Unzippping External_Tools Directory');
+    unzip = require('unzip');
+
+    fs.createReadStream("Magic//External_Tools.zip")
+    .pipe(unzip.Extract({ path: './/Magic//' }))
+    .on('close',()=>{
+        console.log('External Tools Extracted');
+    })
 }
 
 function MagicNpmPackages(){
