@@ -65,13 +65,39 @@ function UnzipIt(){
             console.log('Renamed to Magic');
             unzipExternalTools();
             MagicNpmPackages();
+            InstallAndStartMagicService();
             
         });
     }) 
 }
 
+function InstallAndStartMagicService(){
+    console.log('Installing Magic Service');
+    var spawn = child_process.spawn;
+    child = spawn(".\\Magic\\MagicService.exe",['install'],{stdio: 'inherit', shell: true});
+    child.on('close',()=>{
+        console.log('Magic Service Installed');
+        StartMagicService();
+    })
+
+    child.on('error',(err)=>{
+        console.log(err);
+        console.log('Failed  :(')
+    })
+
+}
+
+function StartMagicService(){
+    console.log('Starting Magic Service');
+    var spawn = child_process.spawn;
+    child = spawn("net",['Start','magicService'],{stdio: 'inherit', shell: true});
+    child.on('close',()=>{
+        console.log('Magic Service started');
+    })
+}
+
 function unzipExternalTools(){
-    console.log('Unzippping External_Tools Directory');
+    console.log('Unzipping External_Tools Directory');
     unzip = require('unzip');
 
     fs.createReadStream("Magic//External_Tools.zip")
