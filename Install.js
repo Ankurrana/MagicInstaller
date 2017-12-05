@@ -74,6 +74,7 @@ function UnzipIt(){
 function InstallAndStartMagicService(){
     console.log('Installing Magic Service');
     var spawn = child_process.spawn;
+    try{
     child = spawn(".\\Magic\\MagicService.exe",['install'],{stdio: 'inherit', shell: true});
     child.on('close',()=>{
         console.log('Magic Service Installed');
@@ -84,15 +85,23 @@ function InstallAndStartMagicService(){
         console.log(err);
         console.log('Failed  :(')
     })
+    }catch(e){
+        console.log('Exception when installing Service, Its possible that the service is pre Installed')
+        StartMagicService();
+    }
 
 }
 
 function StartMagicService(){
     console.log('Starting Magic Service');
     var spawn = child_process.spawn;
-    child = spawn("net",['Start','magicService'],{stdio: 'inherit', shell: true});
+    var child = spawn("net",['start','magicService']);
     child.on('close',()=>{
         console.log('Magic Service started');
+    })
+    child.on('error',(err)=>{
+        console.log(err);
+        console.log('Magic Service Failed to Start');
     })
 }
 
