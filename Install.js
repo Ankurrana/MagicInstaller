@@ -4,8 +4,11 @@ const https = require('https')
 var unzip;
 const child_process = require('child_process');
 var Old_Name;
+var MagicServiceName = "magicService"
+
 
 if(fs.existsSync('Magic')){
+    StopMagicService();
     Old_Name = 'Magic_old' + Date.now('year, month, day, hour, minute, second, millisecond').toString().split(' ').join('_');
     fs.rename('Magic',Old_Name,(err)=>{
         if( !err) {
@@ -26,6 +29,8 @@ if(fs.existsSync('Magic')){
     })
     // download();
 }
+
+
 
 
 function download(){
@@ -65,7 +70,7 @@ function UnzipIt(){
             console.log('Renamed to Magic');
             unzipExternalTools();
             MagicNpmPackages();
-            InstallAndStartMagicService();
+            
             
         });
     }) 
@@ -73,36 +78,55 @@ function UnzipIt(){
 
 function InstallAndStartMagicService(){
     console.log('Installing Magic Service');
-    var spawn = child_process.spawn;
+    var spawn = child_process.spawnSync;
     try{
-    child = spawn(".\\Magic\\MagicService.exe",['install'],{stdio: 'inherit', shell: true});
-    child.on('close',()=>{
-        console.log('Magic Service Installed');
-        StartMagicService();
-    })
+        child = spawn(".\\Magic\\MagicService.exe",['install']);
+        console.log(child.error)
+        // StartMagicService();
+    
+    // child.on('close',()=>{
+    //     console.log('Magic Service Installed');
+    //     StartMagicService();
+    // })
 
-    child.on('error',(err)=>{
-        console.log(err);
-        console.log('Failed  :(')
-    })
+    // child.on('error',(err)=>{
+    //     console.log(err);
+    //     console.log('Failed  :(')
+    // })
     }catch(e){
         console.log('Exception when installing Service, Its possible that the service is pre Installed')
-        StartMagicService();
+        // StartMagicService();
     }
 
+    StartMagicService();
 }
+function StopMagicService(){
+    console.log('Attempting to Stop Magic Service');
+    var spawn = child_process.spawnSync;
+    var child = spawn("net",['stop',MagicServiceName]);
+    console.log(child.error);
+    // child.on('close',()=>{
+    //     console.log('Magic Service Stopped');
+    // })
+    // child.on('error',(err)=>{
+    //     console.log(err);
+    //     console.log('Magic Service Failed to Stop');
+    // })
+}
+
 
 function StartMagicService(){
     console.log('Starting Magic Service');
-    var spawn = child_process.spawn;
-    var child = spawn("net",['start','magicService']);
-    child.on('close',()=>{
-        console.log('Magic Service started');
-    })
-    child.on('error',(err)=>{
-        console.log(err);
-        console.log('Magic Service Failed to Start');
-    })
+    var spawn = child_process.spawnSync;
+    var child = spawn("net",['start',MagicServiceName]);
+    console.log(child.error);
+    // child.on('close',()=>{
+    //     console.log('Magic Service started');
+    // })
+    // child.on('error',(err)=>{
+    //     console.log(err);
+    //     console.log('Magic Service Failed to Start');
+    // })
 }
 
 function unzipExternalTools(){
@@ -123,6 +147,7 @@ function MagicNpmPackages(){
     child.on('close',()=>{
         console.log('npm install called!');
         CopyOldOverrideFiles()
+
     })
 }
 
@@ -136,7 +161,8 @@ function CopyOldOverrideFiles(){
                 fs.createReadStream(Old_Name + '/overrideConfig.json')
                 .pipe(fs.createWriteStream('Magic/overrideConfig.json'))
                 .on('close',()=>{
-                    Clean();    
+                    Clean();
+                    InstallAndStartMagicService();    
                 }) 
             }
             
@@ -145,6 +171,7 @@ function CopyOldOverrideFiles(){
     }else{
             console.log('No Old Override Files exists');
             Clean();
+            InstallAndStartMagicService();
     }
 }
 
